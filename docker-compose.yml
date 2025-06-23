@@ -1,0 +1,17 @@
+services:
+  nextjs:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+  express:
+    build: ./backend
+    ports:
+      - "3001:3001"
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: bank
+    ports:
+      - "8890:8889"
