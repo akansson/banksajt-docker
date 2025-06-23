@@ -1,0 +1,64 @@
+# === GLOBAL IGNORE FOR FULLSTACK PROJECT ===
+
+# ===================
+# Node dependencies
+# ===================
+**/node_modules/
+**/package-lock.json
+**/yarn.lock
+**/pnpm-lock.yaml
+
+# ===================
+# Build outputs
+# ===================
+**/build/
+**/dist/
+**/.next/
+**/.turbo/
+**/.vercel/
+**/.output/
+**/.cache/
+**/.expo/
+
+# ===================
+# Environment files
+# ===================
+**/.env
+**/.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===================
+# Logs
+# ===================
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===================
+# Testing
+# ===================
+**/coverage/
+*.tsbuildinfo
+
+# ===================
+# System & IDE files
+# ===================
+.DS_Store
+Thumbs.db
+*.pem
+
+# ===================
+# Optional: OS-specific
+# ===================
+# macOS
+.AppleDouble
+.LSOverride
+
+# Windows
+ehthumbs.db
+Icon?
+Desktop.ini
