@@ -21,11 +21,14 @@ export default function Account() {
   const fetchBalance = async () => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch("http://localhost:3001/me/accounts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/me/accounts`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        }
+      );
 
       const data = await response.json();
 
@@ -55,7 +58,7 @@ export default function Account() {
 
     try {
       const response = await fetch(
-        "http://localhost:3001/me/accounts/transactions",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/me/accounts/transactions`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

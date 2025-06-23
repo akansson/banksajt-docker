@@ -3,10 +3,23 @@ services:
     build: ./frontend
     ports:
       - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=http://16.170.230.51:3001
+    depends_on:
+      - express
+
   express:
     build: ./backend
     ports:
       - "3001:3001"
+    depends_on:
+      - mysql
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=bank
   mysql:
     image: mysql:5.7
     platform: linux/amd64
@@ -14,4 +27,9 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: bank
     ports:
-      - "8890:8889"
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:

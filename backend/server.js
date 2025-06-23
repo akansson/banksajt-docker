@@ -12,17 +12,82 @@ app.use(bodyParser.json());
 const port = 3001;
 
 const pool = mysql.createPool({
-  user: "root",
-  password: "root",
-  host: "localhost",
-  database: "bank",
-  port: 8889,
+  host: process.env.DB_HOST || "localhost",
+  port: process.env.DB_PORT || 3306,
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "root",
+  database: process.env.DB_NAME || "bank",
+
+  // const pool = mysql.createPool({
+  // user: "root",
+  // password: "root",
+  // host: "mysql",
+  // database: "bank",
+  // port: 3306,
 });
+
+async function waitForDatabaseConnection() {
+  let retries = 10;
+  while (retries > 0) {
+    try {
+      await query("SELECT 1");
+      console.log("Connected to MySQL database");
+      return;
+    } catch (error) {
+      console.log("Waiting for MySQL database to be ready...");
+      retries--;
+      await new Promise((res) => setTimeout(res, 3000));
+    }
+  }
+
+  throw new Error(
+    "Could not connect to MySQL database after multiple attempts"
+  );
+}
 
 // Help function to make code look nicer
 async function query(sql, params) {
   const [results] = await pool.execute(sql, params);
   return results;
+}
+
+async function initializeTables() {
+  try {
+    await query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR (50) UNIQUE NOT NULL,
+        password VARCHAR (255) NOT NULL,
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+      `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS accounts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        balance DECIMAL(10,2) DEFAULT 0.00,
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+
+    await query(`
+      CREATE TABLE IF NOT EXISTS sessions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        token VARCHAR(10) NOT NULL,
+        created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+
+    console.log("Database tables initialized");
+  } catch (error) {
+    console.error("Error initializing tables:", error.message);
+  }
 }
 
 // Generera engångslösenord
@@ -172,8 +237,9 @@ app.post("/me/accounts/transactions", async (req, res) => {
 
 async function startServer() {
   try {
-    await query("SELECT 1");
-    console.log("Connected to MySQL database");
+    await waitForDatabaseConnection();
+
+    await initializeTables();
 
     app.listen(port, () => {
       console.log(`Bankens backend körs på http://localhost:${port}`);
